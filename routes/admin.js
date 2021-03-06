@@ -20,7 +20,7 @@ router.get('/categories', (req, res) => {
     }).catch((error) => {
         console.log('>>> Erro ao realizar listagem de categorias :: '+error);
         req.flash('error_msg', 'Ocorreu algum erro ao realizar a listagem de categorias')
-        res.rendirect('/admin')
+        res.rendirect('admin')
     })
 })
 
@@ -52,9 +52,47 @@ router.post('/categories/new', (req, res) => {
         }).catch((error) => {
             console.log('>>> Erro ao relizar cadastro de categoria :: '+error)
             req.flash('error_msg', 'Ocorreu um erro ao cadastrar categoria, tente novamente!')
-            res.redirect('/admin')
+            res.redirect('admin')
         })
     }
+})
+
+router.get('/categories/edit/:id', (req, res) => {
+    Categories.findOne({_id: req.params.id}).lean().then((categorie) => {
+        res.render('admin/categoriesEdit', {categorie: categorie})
+    }).catch((error) => {
+        req.flash('error_msg', 'Esta categoria não existe')
+        res.redirect('/admin/categories')
+    })
+})
+
+router.post('/categories/edit', (req, res) => {
+    Categories.findOne({_id: req.body.id}).then((categorie) => {
+        categorie.name = req.body.name
+        categorie.slug = req.body.slug
+
+        categorie.save().then(() => {
+            req.flash('success_msg', 'Categoria editada com sucesso!')
+            res.redirect('/admin/categories')
+        }).catch((error) => {
+            req.flash('error_msg', 'Ocorreu algum erro interno ao salvar sua edição.')
+            res.redirect('/admin/categories')
+        })
+
+    }).catch((error) => {
+        req.flash('error_msg','Não possível encontar o registro da categoria no banco de dados.')
+        res.redirect('/admin/categories')
+    })
+})
+
+router.get('/categories/delete/:id', (req, res) => {
+    Categories.findOneAndDelete({_id: req.params.id}).then(() => {
+        req.flash('success_msg', 'Categoria deletada com sucesso!')
+        res.redirect('/admin/categories')
+    }).catch((error) => {
+        req.flash('error_msg', 'Erro ao deletar categoria.')
+        res.redirect('/admin/categories')
+    })
 })
 
 module.exports = router
