@@ -52,7 +52,7 @@ app.use((req, res, next) => {
 
 // Routes
 app.get('/', (req, res) => {
-    res.send('Rota principal')
+    res.render('index')
 })
 app.get('/posts', (req, res) => {
     res.send('Postagens')
