@@ -4,19 +4,19 @@ const bodyParser = require('body-parser')
 const app = express()
 const path = require('path')
 const mongoose = require('mongoose')
+const db = require('./config/db')
 const session = require('express-session')
 const flash = require('connect-flash')
-
+const passport = require('passport')
+require('./config/auth')(passport)
 // Importando rotas
 const admin = require('./routes/admin')
 const user = require('./routes/user')
-
 // Carregando models
 require('./models/Post')
 const Post = mongoose.model('posts')
 require('./models/Categorie')
 const Categorie = mongoose.model('categories')
-
 // Configs
 // Sessions
 app.use(session({
@@ -24,41 +24,38 @@ app.use(session({
     resave: true,
     saveUnitialized: true
 }))
+app.use(passport.initialize())
+app.use(passport.session())
 app.use(flash())
-
 // Config middleware
 app.use((req, res, next) => {
     // Globals vars
     res.locals.success_msg = req.flash('success_msg')
     res.locals.error_msg = req.flash('error_msg')
+    res.locals.error = req.flash('error')
+    res.locals.user = req.user || null
     next()
 })
-
 // Body parser
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
-
 // Handlebars
 app.engine('handlebars', handlebars({defaultlayout: 'main'}))
 app.set('view engine', '.handlebars')
-
 // Mongoose
 mongoose.Promise = global.Promise
-mongoose.connect('mongodb://localhost/blogapp').then(() => {
+mongoose.connect(db.mongoURI).then(() => {
     console.log('>>> Conectado ao mongo :)');
 }).catch((error) => {
     console.log('>>> Erro  ao estabelecer conexõ com o mongo :: '+error)
 })
-
 // Public static files
 app.use(express.static(path.join(__dirname,'public')))
-
 // Middleware
 app.use((req, res, next) => {
     console.log('middleware')
     next()
 })
-
 // Routes
 app.get('/', (req, res) => {
     Post.find().lean().populate('categorie').sort({data: 'DESC'}).then((posts) => {
@@ -69,7 +66,6 @@ app.get('/', (req, res) => {
         req.redirect('/404')
     })
 })
-
 app.get('/post/:slug', (req, res) => {
     Post.findOne({slug: req.params.slug}).lean().then((post) => {
         if(post){
@@ -84,7 +80,6 @@ app.get('/post/:slug', (req, res) => {
         res.redirect('/')
     })
 })
-
 app.get('/categories', (req, res) => {
     Categorie.find().lean().then((categories) => {
         res.render('categories/index', {categories: categories})
@@ -94,7 +89,6 @@ app.get('/categories', (req, res) => {
         res.redirect('/')
     })
 })
-
 app.get('/categories/:slug', (req, res) => {
     Categorie.findOne({slug: req.params.slug}).lean().then((categorie) => {
         if(categorie){
@@ -115,16 +109,13 @@ app.get('/categories/:slug', (req, res) => {
         res.redirect('/')
     })
 })
-
 app.get('/404', (req, res) => {
     res.send('Ops... página não encontrada!')
 })
-
 app.use('/admin', admin)
 app.use('/user', user)
-
 // Others
-const PORT = 8080
+const PORT = process.env.PORT || 8080
 app.listen(PORT, () => {
     console.log(`>>> Servidor rodando --port ${PORT}`)
 })
