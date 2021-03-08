@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const app = express()
 const path = require('path')
 const mongoose = require('mongoose')
+const db = require('./config/db')
 const session = require('express-session')
 const flash = require('connect-flash')
 const passport = require('passport')
@@ -43,7 +44,7 @@ app.engine('handlebars', handlebars({defaultlayout: 'main'}))
 app.set('view engine', '.handlebars')
 // Mongoose
 mongoose.Promise = global.Promise
-mongoose.connect('mongodb://localhost/blogapp').then(() => {
+mongoose.connect(db.mongoURI).then(() => {
     console.log('>>> Conectado ao mongo :)');
 }).catch((error) => {
     console.log('>>> Erro  ao estabelecer conexõ com o mongo :: '+error)
@@ -114,7 +115,7 @@ app.get('/404', (req, res) => {
 app.use('/admin', admin)
 app.use('/user', user)
 // Others
-const PORT = 8080
+const PORT = process.env.PORT || 8080
 app.listen(PORT, () => {
     console.log(`>>> Servidor rodando --port ${PORT}`)
 })
