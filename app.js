@@ -2,11 +2,14 @@ const express = require('express')
 const handlebars = require('express-handlebars')
 const bodyParser = require('body-parser')
 const app = express()
-const admin = require('./routes/admin')
 const path = require('path')
 const mongoose = require('mongoose')
 const session = require('express-session')
 const flash = require('connect-flash')
+
+// Importando rotas
+const admin = require('./routes/admin')
+const user = require('./routes/user')
 
 // Carregando models
 require('./models/Post')
@@ -118,6 +121,7 @@ app.get('/404', (req, res) => {
 })
 
 app.use('/admin', admin)
+app.use('/user', user)
 
 // Others
 const PORT = 8080
