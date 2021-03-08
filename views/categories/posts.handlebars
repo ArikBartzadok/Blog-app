@@ -1,0 +1,14 @@
+<h2>{{categorie.name}}</h2>
+
+{{#each posts}}
+    <div class="card mt-4">
+        <div class="card-body">
+            <h4>{{title}}</h4>
+            <p>{{description}}</p>
+            <p><a href="/post/{{slug}}">Leia mais...</a></p>
+            <small>{{date}}</small> | 
+        </div>
+    </div>
+{{else}}
+    <p>Ops... Nenhuma publicação pôde ser encontrada.</p>
+{{/each}}
