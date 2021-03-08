@@ -1,6 +1,6 @@
 {
   "name": "blog-app",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple blog with node, mongo and expressJS",
   "main": "app.js",
   "dependencies": {
