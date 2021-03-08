@@ -1,7 +1,7 @@
 {
   "name": "blog-app",
   "version": "1.0.0",
-  "description": "A simple blog with node, mongo and express",
+  "description": "A simple blog with node, mongo and expressJS",
   "main": "app.js",
   "dependencies": {
     "bcryptjs": "^2.4.3",
